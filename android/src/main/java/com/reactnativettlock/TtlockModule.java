@@ -28,6 +28,7 @@ import com.reactnativettlock.model.TTRemoteEvent;
 import com.reactnativettlock.util.PermissionUtils;
 import com.ttlock.bl.sdk.api.ExtendedBluetoothDevice;
 import com.ttlock.bl.sdk.api.TTLockClient;
+import com.ttlock.bl.sdk.callback.ActivateLiftFloorsCallback;
 import com.ttlock.bl.sdk.callback.AddFingerprintCallback;
 import com.ttlock.bl.sdk.callback.AddICCardCallback;
 import com.ttlock.bl.sdk.callback.AddRemoteCallback;
@@ -49,6 +50,8 @@ import com.ttlock.bl.sdk.callback.GetLockSoundWithSoundVolumeCallback;
 import com.ttlock.bl.sdk.callback.GetLockStatusCallback;
 import com.ttlock.bl.sdk.callback.GetLockTimeCallback;
 import com.ttlock.bl.sdk.callback.RecoverLockDataCallback;
+import com.ttlock.bl.sdk.callback.SetLiftControlableFloorsCallback;
+import com.ttlock.bl.sdk.callback.SetLiftWorkModeCallback;
 import com.ttlock.bl.sdk.callback.VerifyLockCallback;
 import com.ttlock.bl.sdk.callback.GetLockVersionCallback;
 import com.ttlock.bl.sdk.callback.GetOperationLogCallback;
@@ -80,6 +83,7 @@ import com.ttlock.bl.sdk.device.WirelessDoorSensor;
 import com.ttlock.bl.sdk.device.WirelessKeypad;
 import com.ttlock.bl.sdk.entity.AccessoryInfo;
 import com.ttlock.bl.sdk.entity.AccessoryType;
+import com.ttlock.bl.sdk.entity.ActivateLiftFloorsResult;
 import com.ttlock.bl.sdk.entity.ControlLockResult;
 import com.ttlock.bl.sdk.entity.HotelData;
 import com.ttlock.bl.sdk.entity.IpSetting;
@@ -827,7 +831,7 @@ public class TtlockModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void setLightTime(int light, String lockData, Callback successCallback, Callback fail) {
 
-        if (TextUtils.isEmpty(light) || TextUtils.isEmpty(lockData)) {
+        if (TextUtils.isEmpty(lockData)) {
             lockErrorCallback(LockError.DATA_FORMAT_ERROR, fail);
             return;
         }
@@ -861,10 +865,91 @@ public class TtlockModule extends ReactContextBaseJavaModule {
 
         PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
             if (success) {
-                TTLockClient.getDefault().getLightTime(light, lockData, new GetLockTimeCallback() {
+                TTLockClient.getDefault().getLightTime(lockData, new GetLockTimeCallback() {
                     @Override
                     public void onGetLockTimeSuccess(long lockTimestamp) {
                         successCallback.invoke(String.valueOf(lockTimestamp));
+                    }
+
+                    @Override
+                    public void onFail(LockError error) {
+                        lockErrorCallback(error, fail);
+                    }
+                });
+            } else {
+                noPermissionCallback(fail);
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setLiftControlableFloors(String floors, String lockData, Callback successCallback, Callback fail) {
+
+        if (TextUtils.isEmpty(floors) || TextUtils.isEmpty(lockData)) {
+            lockErrorCallback(LockError.DATA_FORMAT_ERROR, fail);
+            return;
+        }
+
+        PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
+            if (success) {
+                TTLockClient.getDefault().setLiftControlableFloors(floors, lockData, new SetLiftControlableFloorsCallback() {
+                    @Override
+                    public void onSetLiftControlableFloorsSuccess() {
+                        successCallback.invoke();
+                    }
+
+                    @Override
+                    public void onFail(LockError error) {
+                        lockErrorCallback(error, fail);
+                    }
+                });
+            } else {
+                noPermissionCallback(fail);
+            }
+        });
+    }
+
+    @ReactMethod
+    public void setLiftWorkMode(TTLiftWorkMode floors, String lockData, Callback successCallback, Callback fail) {
+
+        if (TextUtils.isEmpty(lockData)) {
+            lockErrorCallback(LockError.DATA_FORMAT_ERROR, fail);
+            return;
+        }
+
+        PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
+            if (success) {
+                TTLockClient.getDefault().setLiftWorkMode(floors, lockData, new SetLiftWorkModeCallback() {
+                    @Override
+                    public void onSetLiftWorkModeSuccess() {
+                        successCallback.invoke();
+                    }
+
+                    @Override
+                    public void onFail(LockError error) {
+                        lockErrorCallback(error, fail);
+                    }
+                });
+            } else {
+                noPermissionCallback(fail);
+            }
+        });
+    }
+
+    @ReactMethod
+    public void activateLiftFloors(List<Integer> floors, long var, String lockData, Callback successCallback, Callback fail) {
+
+        if (TextUtils.isEmpty(lockData)) {
+            lockErrorCallback(LockError.DATA_FORMAT_ERROR, fail);
+            return;
+        }
+
+        PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
+            if (success) {
+                TTLockClient.getDefault().activateLiftFloors(floors, var, lockData, new ActivateLiftFloorsCallback() {
+                    @Override
+                    public void onActivateLiftFloorsSuccess(ActivateLiftFloorsResult var1) {
+                        successCallback.invoke(var1);
                     }
 
                     @Override
