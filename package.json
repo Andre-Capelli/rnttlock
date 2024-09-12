@@ -1,6 +1,6 @@
 {
   "name": "rnttlock",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Custom package in use with TTLock",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
