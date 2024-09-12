@@ -54,6 +54,7 @@ import com.ttlock.bl.sdk.callback.SetLiftControlableFloorsCallback;
 import com.ttlock.bl.sdk.callback.SetLiftWorkModeCallback;
 import com.ttlock.bl.sdk.callback.VerifyLockCallback;
 import com.ttlock.bl.sdk.callback.GetLockVersionCallback;
+import com.ttlock.bl.sdk.callback.GetLockSystemInfoCallback;
 import com.ttlock.bl.sdk.callback.GetOperationLogCallback;
 import com.ttlock.bl.sdk.callback.GetRemoteUnlockStateCallback;
 import com.ttlock.bl.sdk.callback.GetUnlockDirectionCallback;
@@ -1975,6 +1976,32 @@ public class TtlockModule extends ReactContextBaseJavaModule {
             writableArray.pushInt(accessoryInfo.getAccessoryBattery());
             writableArray.pushDouble(accessoryInfo.getBatteryDate());
             successCallback.invoke(writableArray);
+          }
+
+          @Override
+          public void onFail(LockError lockError) {
+            lockErrorCallback(lockError, fail);
+          }
+        });
+      } else {
+        noPermissionCallback(fail);
+      }
+    });
+  }
+
+  @ReactMethod
+  public void getLockSystem(String lockData, Callback successCallback, Callback fail) {
+    PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
+      if (success) {
+        TTLockClient.getDefault().getLockSystemInfo(lockData, null, new GetLockSystemInfoCallback() {
+          @Override
+          public void onGetLockSystemInfoSuccess(com.ttlock.bl.sdk.entity.DeviceInfo deviceInfo) {
+            WritableMap map = Arguments.createMap();
+            map.putString(TTBaseFieldConstant.MODEL_NUM, deviceInfo.getModelNum());
+            map.putString(TTBaseFieldConstant.HARDWARE_REVISION, deviceInfo.getHardwareRevision());
+            map.putString(TTBaseFieldConstant.FIRMWARE_REVISION, deviceInfo.getFirmwareRevision());
+            map.putString(TTLockFieldConstant.LOCK_DATA, deviceInfo.getLockData());
+            successCallback.invoke(map);
           }
 
           @Override

@@ -843,6 +843,16 @@ class Ttlock {
     ttlockModule.getLockTime(lockData, success, fail);
   }
 
+  static getLockSystem(
+    lockData: string,
+    success: null | ((systemModel: DeviceSystemModal) => void),
+    fail: null | ((errorCode: number, description: string) => void)
+  ) {
+    success = success || this.defaultCallback;
+    fail = fail || this.defaultCallback;
+    ttlockModule.getLockSystem(lockData, success, fail);
+  }
+
   static getLockElectricQuantity(
     lockData: string,
     success: null | ((electricQuantity: number) => void),
