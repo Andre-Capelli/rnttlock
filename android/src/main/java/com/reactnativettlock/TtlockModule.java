@@ -1989,11 +1989,11 @@ public class TtlockModule extends ReactContextBaseJavaModule {
     });
   }
 
-  @ReactMethod
+@ReactMethod
   public void getLockSystem(String lockData, Callback successCallback, Callback fail) {
     PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
       if (success) {
-        TTLockClient.getDefault().getLockSystemInfo(lockData, null, new GetLockSystemInfoCallback() {
+        TTLockClient.getDefault().getLockSystemInfo(lockData, new GetLockSystemInfoCallback() {
           @Override
           public void onGetLockSystemInfoSuccess(com.ttlock.bl.sdk.entity.DeviceInfo deviceInfo) {
             WritableMap map = Arguments.createMap();
