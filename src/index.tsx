@@ -1413,25 +1413,25 @@ class Ttlock {
   /**
    * Lif tWork Mode
    *
-   * @param floors number
+   * @param workMode number
    * @param lockData string
    * @param success successful callback
    * @param fail failed callback
    */
   static setLiftWorkMode(
-    floors: string,
+    workMode: number,
     lockData: string,
     success: null | (() => void),
     fail: null | ((errorCode: number, description: string) => void)
   ) {
     fail = fail || this.defaultCallback;
     success = success || this.defaultCallback;
-    ttlockModule.setLiftWorkMode(floors, lockData, success, fail);
+    ttlockModule.setLiftWorkMode(workMode, lockData, success, fail);
   }
   /**
    * Activate Lift Floors
    *
-   * @param floors Array
+   * @param floors String Array separeted by ,
    * @param var1 string
    * @param lockData string
    * @param success successful callback
@@ -1439,14 +1439,13 @@ class Ttlock {
    */
   static activateLiftFloors(
     floors: string,
-    var1: string,
     lockData: string,
-    success: null | ((var1: any) => void),
+    success: null | ((items: any[]) => void),
     fail: null | ((errorCode: number, description: string) => void)
   ) {
     fail = fail || this.defaultCallback;
     success = success || this.defaultCallback;
-    ttlockModule.activateLiftFloors(floors, var1, lockData, success, fail);
+    ttlockModule.activateLiftFloors(floors, lockData, success, fail);
   }
 }
 
