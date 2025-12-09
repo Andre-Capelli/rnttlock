@@ -911,7 +911,7 @@ public class TtlockModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void setLiftWorkMode(TTLiftWorkMode floors, String lockData, Callback successCallback, Callback fail) {
+    public void setLiftWorkMode(int workMode, String lockData, Callback successCallback, Callback fail) {
 
         if (TextUtils.isEmpty(lockData)) {
             lockErrorCallback(LockError.DATA_FORMAT_ERROR, fail);
@@ -920,17 +920,22 @@ public class TtlockModule extends ReactContextBaseJavaModule {
 
         PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
             if (success) {
-                TTLockClient.getDefault().setLiftWorkMode(floors, lockData, new SetLiftWorkModeCallback() {
-                    @Override
-                    public void onSetLiftWorkModeSuccess() {
-                        successCallback.invoke();
-                    }
+              TTLiftWorkMode liftWorkMode = TTLiftWorkMode.ActivateAllFloors;
+              if (workMode == 1) {
+                liftWorkMode = TTLiftWorkMode.ActivateSpecificFloors;
+              }
 
-                    @Override
-                    public void onFail(LockError error) {
-                        lockErrorCallback(error, fail);
-                    }
-                });
+              TTLockClient.getDefault().setLiftWorkMode(liftWorkMode, lockData, new SetLiftWorkModeCallback() {
+                  @Override
+                  public void onSetLiftWorkModeSuccess() {
+                      successCallback.invoke();
+                  }
+
+                  @Override
+                  public void onFail(LockError error) {
+                      lockErrorCallback(error, fail);
+                  }
+              });
             } else {
                 noPermissionCallback(fail);
             }
@@ -938,7 +943,7 @@ public class TtlockModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void activateLiftFloors(List<Integer> floors, long var, String lockData, Callback successCallback, Callback fail) {
+    public void activateLiftFloors(String floors, String lockData, Callback successCallback, Callback fail) {
 
         if (TextUtils.isEmpty(lockData)) {
             lockErrorCallback(LockError.DATA_FORMAT_ERROR, fail);
@@ -947,17 +952,29 @@ public class TtlockModule extends ReactContextBaseJavaModule {
 
         PermissionUtils.doWithConnectPermission(getCurrentActivity(), success -> {
             if (success) {
-                TTLockClient.getDefault().activateLiftFloors(floors, var, lockData, new ActivateLiftFloorsCallback() {
-                    @Override
-                    public void onActivateLiftFloorsSuccess(ActivateLiftFloorsResult var1) {
-                        successCallback.invoke(var1);
-                    }
+              List<Integer> list = new ArrayList<>();
+              if (!TextUtils.isEmpty(floors)) {
+                String[] split = floors.split(",");
+                for (String s : split) {
+                  list.add(Integer.valueOf(s));
+                }
+              }
+              
+              TTLockClient.getDefault().activateLiftFloors(list, 0, lockData, new ActivateLiftFloorsCallback() {
+                @Override
+                 public void onActivateLiftFloorsSuccess(ActivateLiftFloorsResult activateLiftFloorsResult) {
+                  WritableArray writableArray = Arguments.createArray();
+                  writableArray.pushDouble(activateLiftFloorsResult.getDeviceTime());
+                  writableArray.pushInt(activateLiftFloorsResult.getBattery());
+                  writableArray.pushInt(activateLiftFloorsResult.getUniqueid());
+                  successCallback.invoke(writableArray);
+                }
 
-                    @Override
-                    public void onFail(LockError error) {
-                        lockErrorCallback(error, fail);
-                    }
-                });
+                @Override
+                public void onFail(LockError error) {
+                  lockErrorCallback(error, fail);
+                }
+              });
             } else {
                 noPermissionCallback(fail);
             }
